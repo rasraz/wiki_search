@@ -2,60 +2,16 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
-from time import sleep
 import requests
 import re
 import shutil
 import os
 
-# TODO: Make the project functional
-
-# webdriver (chromdriver) service
-service = Service(executable_path=ChromeDriverManager().install())
-
-# text to search
-search_text = input('search for: ')
-os.mkdir(f'./{search_text}')
-
-# open browser
-driver = Chrome(service=service)
-
-
-driver.maximize_window()
-
-# target website 
-url = "https://www.wikipedia.org/"
-driver.get(url)
-
-# selecting persian wikipedia 
-driver.find_element(by='id',value='js-link-box-fa').click()
- 
-# searching
-search_box = driver.find_element(by='id',value='searchInput')
-search_box.send_keys(search_text)
-search_box.send_keys(Keys.ENTER)
-
-# finding all box links
-link_box_results = driver.find_elements(by='class name',value='mw-search-result-heading')
-
-# saving all page links
-links = []
-for link_box in link_box_results:
-    a_tag_link = link_box.find_element(by='tag name',value='a').get_attribute('href')
-    links.append(a_tag_link)
-else:
-    # single page result
-    links.append(driver.current_url)
-
-# scrolling pages
-counter=0
-for link in links:
-    driver.get(link)
-    
+def download_images(driver):
+    global counter,search_text
     # find all images element
     content_page = driver.find_element(by='id',value='bodyContent')
     images = content_page.find_elements(by="tag name",value="img")
-
     # save all images 
     for image in images:
         image_url = str(image.get_attribute('src'))
@@ -70,3 +26,51 @@ for link in links:
             shutil.copyfileobj(response.raw,out_file)
         counter+=1
 
+def main():
+    # webdriver (chromdriver) service
+    service = Service(executable_path=ChromeDriverManager().install())
+
+    # text to search
+    global search_text
+    search_text = input('search for: ')
+    os.mkdir(f'./{search_text}')
+
+    # open browser
+    driver = Chrome(service=service)
+    driver.maximize_window()
+
+    # target website 
+    url = "https://www.wikipedia.org/"
+    driver.get(url)
+
+    # selecting persian wikipedia 
+    driver.find_element(by='id',value='js-link-box-fa').click()
+    
+    # searching
+    search_box = driver.find_element(by='id',value='searchInput')
+    search_box.send_keys(search_text)
+    search_box.send_keys(Keys.ENTER)
+
+    # finding all box links
+    link_box_results = driver.find_elements(by='class name',value='mw-search-result-heading')
+
+    # images file counter for make name
+    global counter
+    counter=0
+
+    # saving all page links
+    links = []
+    for link_box in link_box_results:
+        a_tag_link = link_box.find_element(by='tag name',value='a').get_attribute('href')
+        links.append(a_tag_link)
+    else:
+        # single page result
+        download_images(driver)
+
+    # scrolling pages
+    for link in links:
+        driver.get(link)
+        download_images(driver)
+        
+
+if __name__=="__main__":main()
