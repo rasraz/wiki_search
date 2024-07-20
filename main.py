@@ -8,6 +8,8 @@ import re
 import shutil
 import os
 
+# TODO: Make the project functional
+
 # webdriver (chromdriver) service
 service = Service(executable_path=ChromeDriverManager().install())
 
@@ -41,6 +43,9 @@ links = []
 for link_box in link_box_results:
     a_tag_link = link_box.find_element(by='tag name',value='a').get_attribute('href')
     links.append(a_tag_link)
+else:
+    # single page result
+    links.append(driver.current_url)
 
 # scrolling pages
 counter=0
