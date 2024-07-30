@@ -1,5 +1,5 @@
 from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver import ChromeService
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 import requests
@@ -28,7 +28,7 @@ def download_images(driver):
 
 def main():
     # webdriver (chromdriver) service
-    service = Service(executable_path=ChromeDriverManager().install())
+    service = ChromeService(executable_path=ChromeDriverManager().install())
 
     # text to search
     global search_text
